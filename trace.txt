@@ -1,0 +1,156 @@
+$ xtables-monitor --trace
+PACKET: 2 0427ffe5 OUT=enp3s0 SRC=192.168.1.88 DST=10.43.156.98 LEN=60 TOS=0x0 TTL=64 ID=45471DF SPORT=49058 DPORT=9898 SYN
+ TRACE: 2 0427ffe5 raw:OUTPUT:rule:0x18:CONTINUE  -4 -t raw -A OUTPUT -p tcp -m tcp --dport 9898 -j TRACE
+ TRACE: 2 0427ffe5 raw:OUTPUT:return:
+ TRACE: 2 0427ffe5 raw:OUTPUT:policy:ACCEPT
+ TRACE: 2 0427ffe5 mangle:OUTPUT:return:
+ TRACE: 2 0427ffe5 mangle:OUTPUT:policy:ACCEPT
+PACKET: 2 0427ffe5 OUT=enp3s0 SRC=192.168.1.88 DST=10.43.156.98 LEN=60 TOS=0x0 TTL=64 ID=45471DF SPORT=49058 DPORT=9898 SYN
+ TRACE: 2 0427ffe5 nat:OUTPUT:rule:0xb9:JUMP:cali-OUTPUT  -4 -t nat -A OUTPUT -m comment --comment "cali:tVnHkvAo15HuiPy0" -j cali-OUTPUT
+ TRACE: 2 0427ffe5 nat:cali-OUTPUT:rule:0xb8:JUMP:cali-fip-dnat  -4 -t nat -A cali-OUTPUT -m comment --comment "cali:GBTAv2p5CwevEyJm" -j cali-fip-dnat
+ TRACE: 2 0427ffe5 nat:cali-fip-dnat:return:
+ TRACE: 2 0427ffe5 nat:cali-OUTPUT:return:
+ TRACE: 2 0427ffe5 nat:OUTPUT:rule:0x9:JUMP:KUBE-SERVICES  -4 -t nat -A OUTPUT -m comment --comment "kubernetes service portals" -j KUBE-SERVICES
+ TRACE: 2 0427ffe5 nat:KUBE-SERVICES:rule:0x4aaa:JUMP:KUBE-SVC-Y4T5L63IYP3YFEBS  -4 -t nat -A KUBE-SERVICES -d 10.43.156.98/32 -p tcp -m comment --comment "podinfo/frontend-podinfo:http cluster IP" -j KUBE-SVC-Y4T5L63IYP3YFEBS
+ TRACE: 2 0427ffe5 nat:KUBE-SVC-Y4T5L63IYP3YFEBS:rule:0x471b:JUMP:KUBE-MARK-MASQ  -4 -t nat -A KUBE-SVC-Y4T5L63IYP3YFEBS ! -s 10.42.0.0/16 -d 10.43.156.98/32 -p tcp -m comment --comment "podinfo/frontend-podinfo:http cluster IP" -j KUBE-MARK-MASQ
+ TRACE: 2 0427ffe5 nat:KUBE-MARK-MASQ:rule:0x4aa4:CONTINUE  -4 -t nat -A KUBE-MARK-MASQ -j MARK --set-xmark 0x4000/0x4000
+ TRACE: 2 0427ffe5 nat:KUBE-MARK-MASQ:return:
+ TRACE: 2 0427ffe5 nat:KUBE-SVC-Y4T5L63IYP3YFEBS:rule:0x471d:JUMP:KUBE-SEP-OYNVDBAPYJ623W6H  -4 -t nat -A KUBE-SVC-Y4T5L63IYP3YFEBS -m comment --comment "podinfo/frontend-podinfo:http -> 10.42.54.194:9898" -j KUBE-SEP-OYNVDBAPYJ623W6H
+ TRACE: 2 0427ffe5 nat:KUBE-SEP-OYNVDBAPYJ623W6H:rule:0x4721:ACCEPT  -4 -t nat -A KUBE-SEP-OYNVDBAPYJ623W6H -p tcp -m comment --comment "podinfo/frontend-podinfo:http" -m tcp -j DNAT --to-destination 10.42.54.194:9898
+PACKET: 2 0427ffe5 OUT=enp3s0 SRC=192.168.1.88 DST=10.42.54.194 LEN=60 TOS=0x0 TTL=64 ID=45471DF SPORT=49058 DPORT=9898 SYN MARK=0x4000
+ TRACE: 2 0427ffe5 filter:OUTPUT:rule:0x91:JUMP:cali-OUTPUT  -4 -t filter -A OUTPUT -m comment --comment "cali:tVnHkvAo15HuiPy0" -j cali-OUTPUT
+ TRACE: 2 0427ffe5 filter:cali-OUTPUT:rule:0x8a:CONTINUE  -4 -t filter -A cali-OUTPUT -m comment --comment "cali:iC1pSPgbvgQzkUk_" -j MARK --set-xmark 0x0/0xf0000
+ TRACE: 2 0427ffe5 filter:cali-OUTPUT:return:
+ TRACE: 2 0427ffe5 filter:OUTPUT:rule:0x17:JUMP:KUBE-PROXY-FIREWALL  -4 -t filter -A OUTPUT -m conntrack --ctstate NEW -m comment --comment "kubernetes load balancer firewall" -j KUBE-PROXY-FIREWALL
+ TRACE: 2 0427ffe5 filter:KUBE-PROXY-FIREWALL:return:
+ TRACE: 2 0427ffe5 filter:OUTPUT:rule:0x12:JUMP:KUBE-SERVICES  -4 -t filter -A OUTPUT -m conntrack --ctstate NEW -m comment --comment "kubernetes service portals" -j KUBE-SERVICES
+ TRACE: 2 0427ffe5 filter:KUBE-SERVICES:return:
+ TRACE: 2 0427ffe5 filter:OUTPUT:rule:0x6:JUMP:KUBE-FIREWALL  -4 -t filter -A OUTPUT -j KUBE-FIREWALL
+ TRACE: 2 0427ffe5 filter:KUBE-FIREWALL:return:
+ TRACE: 2 0427ffe5 filter:OUTPUT:return:
+ TRACE: 2 0427ffe5 filter:OUTPUT:policy:ACCEPT
+PACKET: 2 0427ffe5 OUT=vxlan.calico SRC=192.168.1.88 DST=10.42.54.194 LEN=60 TOS=0x0 TTL=64 ID=45471DF SPORT=49058 DPORT=9898 SYN MARK=0x4000
+ TRACE: 2 0427ffe5 mangle:POSTROUTING:rule:0x15:JUMP:cali-POSTROUTING  -4 -t mangle -A POSTROUTING -m comment --comment "cali:O3lYWMrLQYEMJtB5" -j cali-POSTROUTING
+ TRACE: 2 0427ffe5 mangle:cali-POSTROUTING:rule:0x12:CONTINUE  -4 -t mangle -A cali-POSTROUTING -m comment --comment "cali:nnqPh8lh2VOogSzX" -j MARK --set-xmark 0x0/0xf0000
+ TRACE: 2 0427ffe5 mangle:cali-POSTROUTING:rule:0x13:JUMP:cali-to-host-endpoint  -4 -t mangle -A cali-POSTROUTING -m comment --comment "cali:nquN8Jw8Tz72pcBW" -m conntrack --ctstate DNAT -j cali-to-host-endpoint
+ TRACE: 2 0427ffe5 mangle:cali-to-host-endpoint:return:
+ TRACE: 2 0427ffe5 mangle:cali-POSTROUTING:return:
+ TRACE: 2 0427ffe5 mangle:POSTROUTING:return:
+ TRACE: 2 0427ffe5 mangle:POSTROUTING:policy:ACCEPT
+PACKET: 2 0427ffe5 OUT=vxlan.calico SRC=192.168.1.88 DST=10.42.54.194 LEN=60 TOS=0x0 TTL=64 ID=45471DF SPORT=49058 DPORT=9898 SYN MARK=0x4000
+ TRACE: 2 0427ffe5 nat:POSTROUTING:rule:0xba:JUMP:cali-POSTROUTING  -4 -t nat -A POSTROUTING -m comment --comment "cali:O3lYWMrLQYEMJtB5" -j cali-POSTROUTING
+ TRACE: 2 0427ffe5 nat:cali-POSTROUTING:rule:0xb5:JUMP:cali-fip-snat  -4 -t nat -A cali-POSTROUTING -m comment --comment "cali:Z-c7XtVd2Bq7s_hA" -j cali-fip-snat
+ TRACE: 2 0427ffe5 nat:cali-fip-snat:return:
+ TRACE: 2 0427ffe5 nat:cali-POSTROUTING:rule:0xb6:JUMP:cali-nat-outgoing  -4 -t nat -A cali-POSTROUTING -m comment --comment "cali:nYKhEzDlr11Jccal" -j cali-nat-outgoing
+ TRACE: 2 0427ffe5 nat:cali-nat-outgoing:return:
+ TRACE: 2 0427ffe5 nat:cali-POSTROUTING:rule:0xb7:ACCEPT  -4 -t nat -A cali-POSTROUTING -o vxlan.calico -m comment --comment "cali:e9dnSgSVNmIcpVhP" -m addrtype ! --src-type LOCAL --limit-iface-out -m addrtype --src-type LOCAL -j MASQUERADE --random-fully
+PACKET: 2 5dd7a45e OUT=enp3s0 SRC=192.168.1.88 DST=10.43.156.98 LEN=52 TOS=0x0 TTL=64 ID=45472DF SPORT=49058 DPORT=9898 ACK
+ TRACE: 2 5dd7a45e raw:OUTPUT:rule:0x18:CONTINUE  -4 -t raw -A OUTPUT -p tcp -m tcp --dport 9898 -j TRACE
+ TRACE: 2 5dd7a45e raw:OUTPUT:return:
+ TRACE: 2 5dd7a45e raw:OUTPUT:policy:ACCEPT
+ TRACE: 2 5dd7a45e mangle:OUTPUT:return:
+ TRACE: 2 5dd7a45e mangle:OUTPUT:policy:ACCEPT
+PACKET: 2 5dd7a45e OUT=enp3s0 SRC=192.168.1.88 DST=10.42.54.194 LEN=52 TOS=0x0 TTL=64 ID=45472DF SPORT=49058 DPORT=9898 ACK
+ TRACE: 2 5dd7a45e filter:OUTPUT:rule:0x91:JUMP:cali-OUTPUT  -4 -t filter -A OUTPUT -m comment --comment "cali:tVnHkvAo15HuiPy0" -j cali-OUTPUT
+ TRACE: 2 5dd7a45e filter:cali-OUTPUT:rule:0x8a:CONTINUE  -4 -t filter -A cali-OUTPUT -m comment --comment "cali:iC1pSPgbvgQzkUk_" -j MARK --set-xmark 0x0/0xf0000
+ TRACE: 2 5dd7a45e filter:cali-OUTPUT:return:
+ TRACE: 2 5dd7a45e filter:OUTPUT:rule:0x6:JUMP:KUBE-FIREWALL  -4 -t filter -A OUTPUT -j KUBE-FIREWALL
+ TRACE: 2 5dd7a45e filter:KUBE-FIREWALL:return:
+ TRACE: 2 5dd7a45e filter:OUTPUT:return:
+ TRACE: 2 5dd7a45e filter:OUTPUT:policy:ACCEPT
+PACKET: 2 5dd7a45e OUT=vxlan.calico SRC=192.168.1.88 DST=10.42.54.194 LEN=52 TOS=0x0 TTL=64 ID=45472DF SPORT=49058 DPORT=9898 ACK
+ TRACE: 2 5dd7a45e mangle:POSTROUTING:rule:0x15:JUMP:cali-POSTROUTING  -4 -t mangle -A POSTROUTING -m comment --comment "cali:O3lYWMrLQYEMJtB5" -j cali-POSTROUTING
+ TRACE: 2 5dd7a45e mangle:cali-POSTROUTING:rule:0x12:CONTINUE  -4 -t mangle -A cali-POSTROUTING -m comment --comment "cali:nnqPh8lh2VOogSzX" -j MARK --set-xmark 0x0/0xf0000
+ TRACE: 2 5dd7a45e mangle:cali-POSTROUTING:rule:0x13:JUMP:cali-to-host-endpoint  -4 -t mangle -A cali-POSTROUTING -m comment --comment "cali:nquN8Jw8Tz72pcBW" -m conntrack --ctstate DNAT -j cali-to-host-endpoint
+ TRACE: 2 5dd7a45e mangle:cali-to-host-endpoint:return:
+ TRACE: 2 5dd7a45e mangle:cali-POSTROUTING:return:
+ TRACE: 2 5dd7a45e mangle:POSTROUTING:return:
+ TRACE: 2 5dd7a45e mangle:POSTROUTING:policy:ACCEPT
+PACKET: 2 dcb4a012 OUT=enp3s0 SRC=192.168.1.88 DST=10.43.156.98 LEN=133 TOS=0x0 TTL=64 ID=45473DF SPORT=49058 DPORT=9898 ACK PSH
+ TRACE: 2 dcb4a012 raw:OUTPUT:rule:0x18:CONTINUE  -4 -t raw -A OUTPUT -p tcp -m tcp --dport 9898 -j TRACE
+ TRACE: 2 dcb4a012 raw:OUTPUT:return:
+ TRACE: 2 dcb4a012 raw:OUTPUT:policy:ACCEPT
+ TRACE: 2 dcb4a012 mangle:OUTPUT:return:
+ TRACE: 2 dcb4a012 mangle:OUTPUT:policy:ACCEPT
+PACKET: 2 dcb4a012 OUT=enp3s0 SRC=192.168.1.88 DST=10.42.54.194 LEN=133 TOS=0x0 TTL=64 ID=45473DF SPORT=49058 DPORT=9898 ACK PSH
+ TRACE: 2 dcb4a012 filter:OUTPUT:rule:0x91:JUMP:cali-OUTPUT  -4 -t filter -A OUTPUT -m comment --comment "cali:tVnHkvAo15HuiPy0" -j cali-OUTPUT
+ TRACE: 2 dcb4a012 filter:cali-OUTPUT:rule:0x8a:CONTINUE  -4 -t filter -A cali-OUTPUT -m comment --comment "cali:iC1pSPgbvgQzkUk_" -j MARK --set-xmark 0x0/0xf0000
+ TRACE: 2 dcb4a012 filter:cali-OUTPUT:return:
+ TRACE: 2 dcb4a012 filter:OUTPUT:rule:0x6:JUMP:KUBE-FIREWALL  -4 -t filter -A OUTPUT -j KUBE-FIREWALL
+ TRACE: 2 dcb4a012 filter:KUBE-FIREWALL:return:
+ TRACE: 2 dcb4a012 filter:OUTPUT:return:
+ TRACE: 2 dcb4a012 filter:OUTPUT:policy:ACCEPT
+PACKET: 2 dcb4a012 OUT=vxlan.calico SRC=192.168.1.88 DST=10.42.54.194 LEN=133 TOS=0x0 TTL=64 ID=45473DF SPORT=49058 DPORT=9898 ACK PSH
+ TRACE: 2 dcb4a012 mangle:POSTROUTING:rule:0x15:JUMP:cali-POSTROUTING  -4 -t mangle -A POSTROUTING -m comment --comment "cali:O3lYWMrLQYEMJtB5" -j cali-POSTROUTING
+ TRACE: 2 dcb4a012 mangle:cali-POSTROUTING:rule:0x12:CONTINUE  -4 -t mangle -A cali-POSTROUTING -m comment --comment "cali:nnqPh8lh2VOogSzX" -j MARK --set-xmark 0x0/0xf0000
+ TRACE: 2 dcb4a012 mangle:cali-POSTROUTING:rule:0x13:JUMP:cali-to-host-endpoint  -4 -t mangle -A cali-POSTROUTING -m comment --comment "cali:nquN8Jw8Tz72pcBW" -m conntrack --ctstate DNAT -j cali-to-host-endpoint
+ TRACE: 2 dcb4a012 mangle:cali-to-host-endpoint:return:
+ TRACE: 2 dcb4a012 mangle:cali-POSTROUTING:return:
+ TRACE: 2 dcb4a012 mangle:POSTROUTING:return:
+ TRACE: 2 dcb4a012 mangle:POSTROUTING:policy:ACCEPT
+PACKET: 2 d99f11c9 OUT=enp3s0 SRC=192.168.1.88 DST=10.43.156.98 LEN=52 TOS=0x0 TTL=64 ID=45474DF SPORT=49058 DPORT=9898 ACK
+ TRACE: 2 d99f11c9 raw:OUTPUT:rule:0x18:CONTINUE  -4 -t raw -A OUTPUT -p tcp -m tcp --dport 9898 -j TRACE
+ TRACE: 2 d99f11c9 raw:OUTPUT:return:
+ TRACE: 2 d99f11c9 raw:OUTPUT:policy:ACCEPT
+ TRACE: 2 d99f11c9 mangle:OUTPUT:return:
+ TRACE: 2 d99f11c9 mangle:OUTPUT:policy:ACCEPT
+PACKET: 2 d99f11c9 OUT=enp3s0 SRC=192.168.1.88 DST=10.42.54.194 LEN=52 TOS=0x0 TTL=64 ID=45474DF SPORT=49058 DPORT=9898 ACK
+ TRACE: 2 d99f11c9 filter:OUTPUT:rule:0x91:JUMP:cali-OUTPUT  -4 -t filter -A OUTPUT -m comment --comment "cali:tVnHkvAo15HuiPy0" -j cali-OUTPUT
+ TRACE: 2 d99f11c9 filter:cali-OUTPUT:rule:0x8a:CONTINUE  -4 -t filter -A cali-OUTPUT -m comment --comment "cali:iC1pSPgbvgQzkUk_" -j MARK --set-xmark 0x0/0xf0000
+ TRACE: 2 d99f11c9 filter:cali-OUTPUT:return:
+ TRACE: 2 d99f11c9 filter:OUTPUT:rule:0x6:JUMP:KUBE-FIREWALL  -4 -t filter -A OUTPUT -j KUBE-FIREWALL
+ TRACE: 2 d99f11c9 filter:KUBE-FIREWALL:return:
+ TRACE: 2 d99f11c9 filter:OUTPUT:return:
+ TRACE: 2 d99f11c9 filter:OUTPUT:policy:ACCEPT
+PACKET: 2 d99f11c9 OUT=vxlan.calico SRC=192.168.1.88 DST=10.42.54.194 LEN=52 TOS=0x0 TTL=64 ID=45474DF SPORT=49058 DPORT=9898 ACK
+ TRACE: 2 d99f11c9 mangle:POSTROUTING:rule:0x15:JUMP:cali-POSTROUTING  -4 -t mangle -A POSTROUTING -m comment --comment "cali:O3lYWMrLQYEMJtB5" -j cali-POSTROUTING
+ TRACE: 2 d99f11c9 mangle:cali-POSTROUTING:rule:0x12:CONTINUE  -4 -t mangle -A cali-POSTROUTING -m comment --comment "cali:nnqPh8lh2VOogSzX" -j MARK --set-xmark 0x0/0xf0000
+ TRACE: 2 d99f11c9 mangle:cali-POSTROUTING:rule:0x13:JUMP:cali-to-host-endpoint  -4 -t mangle -A cali-POSTROUTING -m comment --comment "cali:nquN8Jw8Tz72pcBW" -m conntrack --ctstate DNAT -j cali-to-host-endpoint
+ TRACE: 2 d99f11c9 mangle:cali-to-host-endpoint:return:
+ TRACE: 2 d99f11c9 mangle:cali-POSTROUTING:return:
+ TRACE: 2 d99f11c9 mangle:POSTROUTING:return:
+ TRACE: 2 d99f11c9 mangle:POSTROUTING:policy:ACCEPT
+PACKET: 2 f65201fb OUT=enp3s0 SRC=192.168.1.88 DST=10.43.156.98 LEN=52 TOS=0x0 TTL=64 ID=45475DF SPORT=49058 DPORT=9898 ACK FIN
+ TRACE: 2 f65201fb raw:OUTPUT:rule:0x18:CONTINUE  -4 -t raw -A OUTPUT -p tcp -m tcp --dport 9898 -j TRACE
+ TRACE: 2 f65201fb raw:OUTPUT:return:
+ TRACE: 2 f65201fb raw:OUTPUT:policy:ACCEPT
+ TRACE: 2 f65201fb mangle:OUTPUT:return:
+ TRACE: 2 f65201fb mangle:OUTPUT:policy:ACCEPT
+PACKET: 2 f65201fb OUT=enp3s0 SRC=192.168.1.88 DST=10.42.54.194 LEN=52 TOS=0x0 TTL=64 ID=45475DF SPORT=49058 DPORT=9898 ACK FIN
+ TRACE: 2 f65201fb filter:OUTPUT:rule:0x91:JUMP:cali-OUTPUT  -4 -t filter -A OUTPUT -m comment --comment "cali:tVnHkvAo15HuiPy0" -j cali-OUTPUT
+ TRACE: 2 f65201fb filter:cali-OUTPUT:rule:0x8a:CONTINUE  -4 -t filter -A cali-OUTPUT -m comment --comment "cali:iC1pSPgbvgQzkUk_" -j MARK --set-xmark 0x0/0xf0000
+ TRACE: 2 f65201fb filter:cali-OUTPUT:return:
+ TRACE: 2 f65201fb filter:OUTPUT:rule:0x6:JUMP:KUBE-FIREWALL  -4 -t filter -A OUTPUT -j KUBE-FIREWALL
+ TRACE: 2 f65201fb filter:KUBE-FIREWALL:return:
+ TRACE: 2 f65201fb filter:OUTPUT:return:
+ TRACE: 2 f65201fb filter:OUTPUT:policy:ACCEPT
+PACKET: 2 f65201fb OUT=vxlan.calico SRC=192.168.1.88 DST=10.42.54.194 LEN=52 TOS=0x0 TTL=64 ID=45475DF SPORT=49058 DPORT=9898 ACK FIN
+ TRACE: 2 f65201fb mangle:POSTROUTING:rule:0x15:JUMP:cali-POSTROUTING  -4 -t mangle -A POSTROUTING -m comment --comment "cali:O3lYWMrLQYEMJtB5" -j cali-POSTROUTING
+ TRACE: 2 f65201fb mangle:cali-POSTROUTING:rule:0x12:CONTINUE  -4 -t mangle -A cali-POSTROUTING -m comment --comment "cali:nnqPh8lh2VOogSzX" -j MARK --set-xmark 0x0/0xf0000
+ TRACE: 2 f65201fb mangle:cali-POSTROUTING:rule:0x13:JUMP:cali-to-host-endpoint  -4 -t mangle -A cali-POSTROUTING -m comment --comment "cali:nquN8Jw8Tz72pcBW" -m conntrack --ctstate DNAT -j cali-to-host-endpoint
+ TRACE: 2 f65201fb mangle:cali-to-host-endpoint:return:
+ TRACE: 2 f65201fb mangle:cali-POSTROUTING:return:
+ TRACE: 2 f65201fb mangle:POSTROUTING:return:
+ TRACE: 2 f65201fb mangle:POSTROUTING:policy:ACCEPT
+PACKET: 2 f3b542c6 OUT=enp3s0 SRC=192.168.1.88 DST=10.43.156.98 LEN=52 TOS=0x0 TTL=64 ID=45476DF SPORT=49058 DPORT=9898 ACK
+ TRACE: 2 f3b542c6 raw:OUTPUT:rule:0x18:CONTINUE  -4 -t raw -A OUTPUT -p tcp -m tcp --dport 9898 -j TRACE
+ TRACE: 2 f3b542c6 raw:OUTPUT:return:
+ TRACE: 2 f3b542c6 raw:OUTPUT:policy:ACCEPT
+ TRACE: 2 f3b542c6 mangle:OUTPUT:return:
+ TRACE: 2 f3b542c6 mangle:OUTPUT:policy:ACCEPT
+PACKET: 2 f3b542c6 OUT=enp3s0 SRC=192.168.1.88 DST=10.42.54.194 LEN=52 TOS=0x0 TTL=64 ID=45476DF SPORT=49058 DPORT=9898 ACK
+ TRACE: 2 f3b542c6 filter:OUTPUT:rule:0x91:JUMP:cali-OUTPUT  -4 -t filter -A OUTPUT -m comment --comment "cali:tVnHkvAo15HuiPy0" -j cali-OUTPUT
+ TRACE: 2 f3b542c6 filter:cali-OUTPUT:rule:0x8a:CONTINUE  -4 -t filter -A cali-OUTPUT -m comment --comment "cali:iC1pSPgbvgQzkUk_" -j MARK --set-xmark 0x0/0xf0000
+ TRACE: 2 f3b542c6 filter:cali-OUTPUT:return:
+ TRACE: 2 f3b542c6 filter:OUTPUT:rule:0x6:JUMP:KUBE-FIREWALL  -4 -t filter -A OUTPUT -j KUBE-FIREWALL
+ TRACE: 2 f3b542c6 filter:KUBE-FIREWALL:return:
+ TRACE: 2 f3b542c6 filter:OUTPUT:return:
+ TRACE: 2 f3b542c6 filter:OUTPUT:policy:ACCEPT
+PACKET: 2 f3b542c6 OUT=vxlan.calico SRC=192.168.1.88 DST=10.42.54.194 LEN=52 TOS=0x0 TTL=64 ID=45476DF SPORT=49058 DPORT=9898 ACK
+ TRACE: 2 f3b542c6 mangle:POSTROUTING:rule:0x15:JUMP:cali-POSTROUTING  -4 -t mangle -A POSTROUTING -m comment --comment "cali:O3lYWMrLQYEMJtB5" -j cali-POSTROUTING
+ TRACE: 2 f3b542c6 mangle:cali-POSTROUTING:rule:0x12:CONTINUE  -4 -t mangle -A cali-POSTROUTING -m comment --comment "cali:nnqPh8lh2VOogSzX" -j MARK --set-xmark 0x0/0xf0000
+ TRACE: 2 f3b542c6 mangle:cali-POSTROUTING:rule:0x13:JUMP:cali-to-host-endpoint  -4 -t mangle -A cali-POSTROUTING -m comment --comment "cali:nquN8Jw8Tz72pcBW" -m conntrack --ctstate DNAT -j cali-to-host-endpoint
+ TRACE: 2 f3b542c6 mangle:cali-to-host-endpoint:return:
+ TRACE: 2 f3b542c6 mangle:cali-POSTROUTING:return:
+ TRACE: 2 f3b542c6 mangle:POSTROUTING:return:
+ TRACE: 2 f3b542c6 mangle:POSTROUTING:policy:ACCEPT
